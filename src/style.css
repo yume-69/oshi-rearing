@@ -43,6 +43,8 @@ body {
 }
 
 #pet {
+  position: relative;
+  z-index: 1;
   width: 200px;
   height: 200px;
   image-rendering: pixelated; /* ドット絵を綺麗に拡大 */
@@ -78,7 +80,8 @@ body {
 
 #bubble {
   position: absolute;
-  top: 4px;
+  z-index: 2;
+  top: 28px;
   left: 50%;
   transform: translateX(-50%);
   max-width: 190px;

@@ -2,14 +2,8 @@
 //  育成ロジック（数値のことだけ。描画は character.js）
 // ─────────────────────────────────────────────
 
-/** 成長段階。minExp を超えると次の段階へ進む */
-export const STAGES = [
-  { key: "egg",   label: "たまご",   minExp: 0 },
-  { key: "baby",  label: "ベビー",   minExp: 30 },
-  { key: "child", label: "こども",   minExp: 240 },
-  { key: "teen",  label: "わかもの", minExp: 900 },
-  { key: "adult", label: "せいたい", minExp: 2400 },
-];
+/** 成長段階（いまは成体のみ） */
+export const STAGES = [{ key: "adult", label: "せいたい", minExp: 0 }];
 
 /** 1分あたりの基準経験値 / 満腹度の減り */
 const EXP_PER_MIN = 1;
@@ -78,12 +72,11 @@ export function pat(s) {
 
 /** 状態に応じたひとこと */
 export function talk(s) {
-  if (s.hunger < 20) return "おなかすいた…";
-  if (s.mood < 30) return "さみしい…";
-  if (s.mood > 85) return "うれしい！";
-  const st = stageOf(s);
-  if (st.key === "egg") return "…（まだ卵）";
-  return `${st.label}になった`;
+  if (s.hunger < 20) return "フランソワを呼べ！";
+  if (s.mood < 30) return "欲しい！";
+  if (s.mood > 85) return "ハッハー！";
+  if (s.mood > 60) return "にゃ…";
+  return "ふわ…";
 }
 
 const clamp = (v) => Math.max(0, Math.min(100, v));

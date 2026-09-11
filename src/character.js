@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────
 //  キャラクターの描画
 //  自作キャラに差し替えたいときは drawSprite() の中だけ触ればよい。
-//  assets/<stageKey>.png を置くと自動でそちらが使われる（例: assets/baby.png）
+//  assets/adult.png を置くと自動でそちらが使われる
 // ─────────────────────────────────────────────
 
 const cache = new Map();
@@ -33,10 +33,9 @@ export function drawCharacter(ctx, view) {
   drawFallback(ctx, view, W, H);
 }
 
-/** 画像を用意する前でも動く、手描きのプレースホルダ */
+/** 画像を用意する前でも動く、成体の手描きプレースホルダ */
 function drawFallback(ctx, view, W, H) {
-  const size = { egg: 0.42, baby: 0.5, child: 0.6, teen: 0.7, adult: 0.8 }[view.stage] ?? 0.5;
-  const r = (W * size) / 2;
+  const r = (W * 0.8) / 2;
   const cx = W / 2;
   const cy = H - r - 16;
   const hue = view.hunger < 20 ? 35 : 95 + view.mood * 0.4;
@@ -53,38 +52,19 @@ function drawFallback(ctx, view, W, H) {
   grad.addColorStop(1, `hsl(${hue} 55% 50%)`);
   ctx.fillStyle = grad;
   ctx.beginPath();
-  if (view.stage === "egg") {
-    ctx.ellipse(cx, cy, r * 0.8, r, 0, 0, Math.PI * 2);
-  } else {
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  }
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
 
-  if (view.stage === "egg") {
-    // ひび
-    ctx.strokeStyle = "rgba(255,255,255,0.75)";
-    ctx.lineWidth = 3;
+  // 耳
+  const ear = r * 0.5;
+  ctx.fillStyle = `hsl(${hue} 60% 58%)`;
+  for (const dir of [-1, 1]) {
     ctx.beginPath();
-    ctx.moveTo(cx - r * 0.5, cy);
-    ctx.lineTo(cx - r * 0.15, cy - r * 0.2);
-    ctx.lineTo(cx + r * 0.1, cy + r * 0.05);
-    ctx.lineTo(cx + r * 0.45, cy - r * 0.15);
-    ctx.stroke();
-    return;
-  }
-
-  // 耳（成長すると伸びる）
-  if (view.stage !== "baby") {
-    const ear = r * (view.stage === "adult" ? 0.5 : 0.34);
-    ctx.fillStyle = `hsl(${hue} 60% 58%)`;
-    for (const dir of [-1, 1]) {
-      ctx.beginPath();
-      ctx.moveTo(cx + dir * r * 0.45, cy - r * 0.8);
-      ctx.lineTo(cx + dir * r * 0.25, cy - r * 0.85 - ear);
-      ctx.lineTo(cx + dir * r * 0.7, cy - r * 0.6);
-      ctx.closePath();
-      ctx.fill();
-    }
+    ctx.moveTo(cx + dir * r * 0.45, cy - r * 0.8);
+    ctx.lineTo(cx + dir * r * 0.25, cy - r * 0.85 - ear);
+    ctx.lineTo(cx + dir * r * 0.7, cy - r * 0.6);
+    ctx.closePath();
+    ctx.fill();
   }
 
   // まばたき（3.4秒ごとに一瞬つぶる）
