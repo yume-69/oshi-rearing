@@ -1,0 +1,169 @@
+/* 透過ウィンドウの要： html と body の背景を必ず透明にする */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  font-family: "Yu Gothic UI", "Segoe UI", sans-serif;
+}
+
+#app {
+  width: 240px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#handle {
+  width: 100%;
+  height: 18px;
+  text-align: center;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  letter-spacing: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: grab;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+#stage {
+  position: relative;
+  width: 240px;
+  height: 210px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#pet {
+  width: 200px;
+  height: 200px;
+  image-rendering: pixelated; /* ドット絵を綺麗に拡大 */
+  transform-origin: 50% 100%;
+  animation: idle 2.6s ease-in-out infinite;
+}
+
+@keyframes idle {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-4px) scale(0.99, 1.01);
+  }
+}
+
+#pet.happy {
+  animation: hop 0.45s ease-out 2;
+}
+
+@keyframes hop {
+  0% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-18px) scale(1.04, 0.96);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+#bubble {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 190px;
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#bubble.show {
+  opacity: 1;
+}
+
+/* パネルはマウスが乗ったときだけ出す */
+#panel {
+  width: 200px;
+  padding: 8px 10px 10px;
+  border-radius: 12px;
+  background: rgba(24, 24, 28, 0.82);
+  color: #f2f2f2;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+#app:hover #panel,
+#app:hover #handle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #7ed957;
+  transition: width 0.4s;
+}
+
+.bar.hunger i {
+  background: #ffb74d;
+}
+
+#buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+button {
+  flex: 1;
+  padding: 5px 0;
+  border: 0;
+  border-radius: 8px;
+  background: #4a4a55;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #5d5d6b;
+}
+
+button:active {
+  transform: translateY(1px);
+}

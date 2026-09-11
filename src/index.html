@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>MyPet</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- ここを掴んでウィンドウを動かす -->
+      <div id="handle" data-tauri-drag-region title="ドラッグで移動">⋯</div>
+
+      <div id="stage">
+        <div id="bubble"></div>
+        <canvas id="pet" width="256" height="256"></canvas>
+      </div>
+
+      <div id="panel">
+        <div id="title"><span id="petName">たまご</span><span id="lv">Lv.1</span></div>
+        <div class="bar"><i id="expBar"></i></div>
+        <div class="bar hunger"><i id="hungerBar"></i></div>
+        <div id="buttons">
+          <button id="feed">ごはん</button>
+          <button id="pat">なでる</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
