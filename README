@@ -1,0 +1,128 @@
+# MyPet — デスクトップ育成ウィジェット（Tauri v2 / HTML・CSS・JS）
+
+透過ウィンドウでデスクトップに常時表示され、放置した時間ぶんだけキャラが育つ雛形です。
+インストーラは署名なしの `.exe`（NSIS）として出力されます。
+
+---
+
+## 1. 事前に入れるもの（初回だけ、すべて無料）
+
+| | 入れるもの | 補足 |
+|---|---|---|
+| 1 | **Rust** — https://rustup.rs の `rustup-init.exe` | Enter 連打で既定インストールでよい |
+| 2 | **Visual Studio Build Tools 2022** | インストーラで **「C++ によるデスクトップ開発」** にチェック。これが無いと Rust がリンクできない |
+| 3 | **Node.js (LTS)** — https://nodejs.org | |
+| 4 | **WebView2** | Windows 11 と最近の 10 には最初から入っている |
+
+インストール後、PowerShell を開き直して確認：
+
+```powershell
+rustc --version
+node --version
+```
+
+## 2. 起動する
+
+プロジェクトのフォルダを Cursor で開き、ターミナルで：
+
+```powershell
+npm install
+npm run dev
+```
+
+初回は Rust のコンパイルで 3〜10 分かかります（2 回目以降は数秒）。
+デスクトップにキャラが出て、マウスを乗せると操作パネルが表示されます。
+
+- **ドラッグで移動** … 上部の `⋯` を掴む
+- **なでる** … キャラをクリック
+- **終了 / クリック透過の切り替え** … タスクトレイのアイコンから
+
+## 3. exe を作る
+
+```powershell
+npm run build
+```
+
+出力先：`src-tauri/target/release/bundle/nsis/MyPet_0.1.0_x64-setup.exe`（3〜8MB 程度）
+
+署名していないため、他の PC でダウンロードして実行すると SmartScreen の警告が出ます。
+「詳細情報」→「実行」で起動できます。自分用・知人に渡す範囲ならこれで十分です。
+
+---
+
+## ファイルの役割
+
+```
+src/
+  index.html      画面の構造
+  style.css       見た目。html/body の background: transparent が透過の要
+  state.js        育成ロジック（成長段階・経験値・満腹度）★数値の調整はここ
+  character.js    キャラの描画 ★見た目を変えるのはここ
+  main.js         状態と画面をつなぐ / 保存・読み込み
+  assets/         自作キャラの画像を置く場所
+src-tauri/
+  tauri.conf.json ウィンドウ設定（透過・枠なし・最前面）とビルド設定
+  src/main.rs     タスクトレイ常駐とセーブファイルの読み書き
+  capabilities/   JS から使える API の許可リスト
+```
+
+## 自作キャラに差し替える
+
+`src/assets/` に成長段階ごとの **透過 PNG（256×256 推奨）** を置くだけで、自動的にそちらが使われます。
+
+```
+src/assets/egg.png    たまご
+src/assets/baby.png   ベビー
+src/assets/child.png  こども
+src/assets/teen.png   わかもの
+src/assets/adult.png  せいたい
+```
+
+ファイルが無い段階は `character.js` の手描きプレースホルダが表示されます。
+ドット絵をそのまま拡大したいときは CSS に `image-rendering: pixelated` が既に入っています。
+
+アニメーションさせたい場合は、横並びのスプライトシートを 1 枚置き、`character.js` の
+`drawImage` を「フレーム番号ぶん切り出して描く」形に変えます。
+
+## 育て方のバランス調整（`src/state.js`）
+
+| 定数 | 意味 | 既定 |
+|---|---|---|
+| `STAGES[].minExp` | 各段階に進む経験値 | 0 / 30 / 240 / 900 / 2400 |
+| `EXP_PER_MIN` | 1 分あたりの経験値 | 1 |
+| `HUNGER_PER_MIN` | 1 分あたりに減る満腹度 | 0.5 |
+| `MAX_OFFLINE_MIN` | 起動していない間に進む上限 | 720 分（12時間） |
+
+既定では 30 分で孵化、4 時間でこども、15 時間でわかもの、40 時間でせいたいになります。
+満腹度が 20 未満だと成長がほぼ止まるので、放置しすぎると育ちません。
+
+セーブデータは `%APPDATA%\dev.example.mypet\pet.json`。中身はただの JSON なので、
+テスト中に一気に育てたいときは `exp` の値を直接書き換えてください。
+
+## よくあるつまずき
+
+**背景が白いまま透過されない**
+`style.css` の `html, body { background: transparent }` が効いているか確認。
+CSS 側で `body` に色を付けると WebView2 では透過されません。
+
+**`link.exe not found` でビルドが止まる**
+Visual Studio Build Tools の「C++ によるデスクトップ開発」が入っていません。
+
+**`show_menu_on_left_click` でコンパイルエラー**
+CLI のバージョン差です。`src-tauri/src/main.rs` の該当行を
+`.menu_on_left_click(true)` に変えてください。
+
+**壁紙のように他のウィンドウの後ろに置きたい**
+`tauri.conf.json` の `"alwaysOnTop": true` を `"alwaysOnBottom": true` に変更。
+ただし他のウィンドウを最大化すると隠れます。
+
+**PC 起動時に自動で立ち上げたい**
+`npm run tauri add autostart` でプラグインを追加します。
+手軽に済ませるなら `Win+R` → `shell:startup` に exe のショートカットを置くだけでも動きます。
+
+## 次に足すと面白いもの
+
+- 名前を付ける画面（初回起動時に一度だけ表示）
+- お世話を忘れたときの通知（`npm run tauri add notification`）
+- 成長の記録を日ごとに残してカレンダー表示
+- Bonsai と同じ「名前をハッシュ化して見た目の個体差を作る」仕組み
